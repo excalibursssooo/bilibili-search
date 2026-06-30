@@ -1,0 +1,124 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint + Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pyflakes
+
+      - name: Validate Python syntax
+        run: |
+          for f in bili-fetch.py bili-harvest.py paths.py; do
+            echo "  → checking $f"
+            python -c "import ast; ast.parse(open('$f').read())" || exit 1
+          done
+
+      - name: Lint with pyflakes
+        run: |
+          pyflakes bili-fetch.py bili-harvest.py paths.py
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          python -c "
+          import re
+          content = open('SKILL.md').read()
+          m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+          assert m, 'SKILL.md must have YAML frontmatter'
+          fm = m.group(1)
+          assert 'name:' in fm, 'frontmatter must have name'
+          assert 'description:' in fm, 'frontmatter must have description'
+          m_name = re.search(r'name:\s*([\w-]+)', fm)
+          print('✓ SKILL.md frontmatter valid')
+          print(f'  name: {m_name.group(1) if m_name else \"?\"}')
+          "
+
+      - name: Validate paths.py
+        run: |
+          python -c "
+          from paths import DATA_DIR, COOKIE_FILE, STATE_FILE
+          print('✓ paths.py OK')
+          print(f'  DATA_DIR: {DATA_DIR}')
+          print(f'  COOKIE_FILE: {COOKIE_FILE}')
+          print(f'  STATE_FILE: {STATE_FILE}')
+          "
+
+      - name: Validate .gitignore
+        run: |
+          test -f .gitignore || (echo 'missing .gitignore' && exit 1)
+          grep -q '^data/' .gitignore || (echo '.gitignore must exclude data/' && exit 1)
+          test -f data/.gitkeep || (echo 'data/.gitkeep required to keep dir in git' && exit 1)
+          echo '✓ .gitignore + .gitkeep valid'
+
+  smoke-test:
+    name: Smoke Test (no network)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Verify all scripts are importable
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          import paths
+          import importlib.util
+          for mod in ['bili-fetch', 'bili-harvest']:
+              spec = importlib.util.spec_from_file_location(mod, f'{mod.replace(chr(95), chr(45))}.py')
+              assert spec is not None, f'{mod} not found'
+              print(f'  ✓ {mod} discoverable')
+          print('✓ all scripts discoverable')
+          "
+
+      - name: Verify help output
+        run: |
+          python bili-fetch.py --help > /dev/null && echo '✓ bili-fetch.py --help OK'
+          python bili-harvest.py --help > /dev/null && echo '✓ bili-harvest.py --help OK'
+          python bili-fetch.py user --help > /dev/null && echo '✓ bili-fetch.py user --help OK'
+          python bili-fetch.py video --help > /dev/null && echo '✓ bili-fetch.py video --help OK'
+          python bili-fetch.py search --help > /dev/null && echo '✓ bili-fetch.py search --help OK'
+          python bili-fetch.py paths > /dev/null && echo '✓ bili-fetch.py paths OK'
+
+  publish:
+    name: Publish to ClawHub
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [lint, smoke-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish to ClawHub
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          echo "publishing ${{ github.ref_name }} to ClawHub..."
+          # 实际发布在本地手工跑:
+          #   clawhub skill publish . --source-repo excalibursssooo/bilibili-search \
+          #                            --source-commit ${{ github.sha }} \
+          #                            --source-ref ${{ github.ref_name }}
+          # 仓库 owner 端只需把 CLAWHUB_TOKEN 配到 secrets,或者本地登录后手工 publish
+          echo "(configure CLAWHUB_TOKEN secret and uncomment CLI steps when ready)"
