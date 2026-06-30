@@ -1,8 +1,9 @@
 ---
-name: bilibili-search
+name: bilibili-universal
 description: bilibili 内容抓取(搜索/UP 主空间/视频详情/评论)。统一走 agent-browser,自动复用 buvid cookie + wbi 签名环境。无需登录即可抓大部分公开数据。
 version: 0.1.0
 emoji: "📺"
+homepage: https://github.com/excalibursssooo/bilibili-search
 metadata:
   openclaw:
     requires:
@@ -21,9 +22,13 @@ changelog:
   - v0.1.0: 初版 (atomic fetch + 编排 harvest 双层架构)
 ---
 
-# bilibili-search
+# bilibili-universal
 
-> **B 站公开数据抓取**。**不强制登录**,登录后能拿到更高画质 / 关注状态 / 个人化推荐。
+> **B 站公开数据抓取** skill。**不强制登录**,登录后能拿到更高画质 / 关注状态 / 个人化推荐。
+> 
+> - **GitHub 仓库**: https://github.com/excalibursssooo/bilibili-search (本地路径: `$SKILL/bilibili-search/`)
+> - **ClawHub slug**: `bilibili-universal` (因为 bilibili-search 已被别人占用)
+> - 安装: `clawhub install bilibili-universal` 或 `openclaw skills install @excalibursssooo/bilibili-universal`
 
 ## ⚡ 30 秒上手
 

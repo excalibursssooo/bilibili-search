@@ -1,8 +1,29 @@
-# bilibili-search
+# bilibili-universal
+
+> B 站抓取 skill（GitHub 仓库名是 `bilibili-search`，因为 ClawHub 上 `bilibili-search` slug 已被别人占用，所以在 ClawHub 上以 `@excalibursssooo/bilibili-universal` 形式发布）
 
 bilibili 内容抓取 skill。统一走 agent-browser + 公开 API，让浏览器帮我们处理 buvid cookie 和 wbi 签名环境。
 
 > **不强制登录** — 默认未登录态就能跑通 80% 用例（搜索 / UP 主空间 / 视频详情 / 评论）。
+
+## 安装
+
+### ClawHub (推荐)
+
+```bash
+# 仓库内路径 (已安装)
+openclaw skills install @excalibursssooo/bilibili-universal
+# 或通过 clawhub CLI
+clawhub install bilibili-universal
+```
+
+### GitHub 直接 git clone
+
+```bash
+git clone https://github.com/excalibursssooo/bilibili-search.git
+cd bilibili-search
+python3 bili-fetch.py --help
+```
 
 ## 5 个核心命令
 
