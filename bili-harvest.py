@@ -32,7 +32,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from paths import HARVESTS_DIR, DATA_DIR, report as report_paths
+from paths import HARVESTS_DIR
 
 
 # 优先用同目录的 venv 里的 python (bilibili-api 库仅装在 venv)
@@ -190,31 +190,31 @@ def write_report_hot(out_dir, keyword, args, candidates, videos, errors):
         f.write(f"- 候选 {len(candidates)} 条, 成功 {len(videos)} 条, 失败 {len(errors)} 条\n")
         f.write(f"- 抓取参数: limit={args.limit}, comments={args.comments}, sleep={args.sleep}s\n\n")
 
-        f.write(f"## 视频列表\n\n")
-        f.write(f"| # | 标题 | UP 主 | 时长 | 播放 | 弹幕 | 评论 | BV |\n")
-        f.write(f"|---|---|---|---|---|---|---|---|\n")
+        f.write("## 视频列表\n\n")
+        f.write("| # | 标题 | UP 主 | 时长 | 播放 | 弹幕 | 评论 | BV |\n")
+        f.write("|---|---|---|---|---|---|---|---|\n")
         for i, v in enumerate(videos, 1):
             st = v.get('stat', {})
             f.write(f"| {i} | {v.get('title', '')[:40]} | {v.get('owner', {}).get('name', '')} "
                     f"| {v.get('duration_text', '')} | {st.get('view', '')} "
                     f"| {st.get('danmaku', '')} | {st.get('reply', '')} | `{v.get('bvid', '')}` |\n")
         if errors:
-            f.write(f"\n## 失败列表\n\n")
+            f.write("\n## 失败列表\n\n")
             for e in errors:
                 f.write(f"- `{e['bvid']}`: {e['error']}\n")
 
         # 热门评论样本 (每条前 3)
-        f.write(f"\n## 热门评论样本 (每条 top 3)\n\n")
+        f.write("\n## 热门评论样本 (每条 top 3)\n\n")
         for i, v in enumerate(videos, 1):
             f.write(f"### {i}. {v.get('title', '')}\n\n")
             samples = v.get('comments_sample', [])
             if not samples:
-                f.write(f"_无评论样本_\n\n")
+                f.write("_无评论样本_\n\n")
                 continue
             for c in samples:
                 loc = f" [{c.get('location')}]" if c.get('location') else ''
                 f.write(f"- **{c['uname']}**{loc} (👍{c['like']}): {c['content']}\n")
-            f.write(f"\n")
+            f.write("\n")
 
         # 弹幕统计
         if args.danmaku:
@@ -228,7 +228,7 @@ def write_report_hot(out_dir, keyword, args, candidates, videos, errors):
                         dm_count += len(json.loads(fp.read_text()))
                     except Exception:
                         pass
-            f.write(f"\n## 弹幕统计\n\n")
+            f.write("\n## 弹幕统计\n\n")
             f.write(f"- 文件: `data/harvests/{out_dir.name}/danmaku/`, 共 **{dm_files}** 个 BV\n")
             f.write(f"- 总弹幕数: **{dm_count}** 条\n")
             if dm_files and videos:
@@ -338,30 +338,30 @@ def write_report_user(out_dir, user_data, videos, errors, args, skipped_after=0)
             f.write(f"- (因早终止跳过 {skipped_after} 条 earliest-than-since 的 bvid)\n" if skipped_after else f"- 时间过滤生效, 共跳过 {skipped_after} 条\n")
         f.write(f"- 候选 {len(user_data.get('videos', []))} 条, 成功 {len(videos)} 条, 失败 {len(errors)} 条\n\n")
 
-        f.write(f"## 视频列表\n\n")
-        f.write(f"| # | 日期 | 标题 | 时长 | 播放 | 弹幕 | 评论 | BV |\n")
-        f.write(f"|---|---|---|---|---|---|---|---|\n")
+        f.write("## 视频列表\n\n")
+        f.write("| # | 日期 | 标题 | 时长 | 播放 | 弹幕 | 评论 | BV |\n")
+        f.write("|---|---|---|---|---|---|---|---|\n")
         for i, v in enumerate(videos, 1):
             st = v.get('stat', {})
             date = v.get('pubdate_text') or '?'
             f.write(f"| {i} | {date} | {v.get('title', '')[:40]} | {v.get('duration_text', '')} "
                     f"| {st.get('view', '')} | {st.get('danmaku', '')} | {st.get('reply', '')} | `{v.get('bvid', '')}` |\n")
         if errors:
-            f.write(f"\n## 失败列表\n\n")
+            f.write("\n## 失败列表\n\n")
             for e in errors:
                 f.write(f"- `{e['bvid']}`: {e['error']}\n")
 
-        f.write(f"\n## 热门评论样本 (每条 top 3)\n\n")
+        f.write("\n## 热门评论样本 (每条 top 3)\n\n")
         for i, v in enumerate(videos, 1):
             f.write(f"### {i}. {v.get('title', '')}\n\n")
             samples = v.get('comments_sample', [])
             if not samples:
-                f.write(f"_无评论样本_\n\n")
+                f.write("_无评论样本_\n\n")
                 continue
             for c in samples:
                 loc = f" [{c.get('location')}]" if c.get('location') else ''
                 f.write(f"- **{c['uname']}**{loc} (👍{c['like']}): {c['content']}\n")
-            f.write(f"\n")
+            f.write("\n")
 
         # 弹幕统计
         if args.danmaku:
@@ -375,7 +375,7 @@ def write_report_user(out_dir, user_data, videos, errors, args, skipped_after=0)
                         dm_count += len(json.loads(fp.read_text()))
                     except Exception:
                         pass
-            f.write(f"\n## 弹幕统计\n\n")
+            f.write("\n## 弹幕统计\n\n")
             f.write(f"- 文件: `data/harvests/{out_dir.name}/danmaku/`, 共 **{dm_files}** 个 BV\n")
             f.write(f"- 总弹幕数: **{dm_count}** 条\n")
             if dm_files and videos:
@@ -407,25 +407,25 @@ def cmd_ids(args):
     # 简单 REPORT
     path = out_dir / 'REPORT.md'
     with open(path, 'w', encoding='utf-8') as f:
-        f.write(f"# B 站批量收割报告\n\n")
+        f.write("# B 站批量收割报告\n\n")
         f.write(f"- 抓取时间: {datetime.now().isoformat(timespec='seconds')}\n")
         f.write(f"- 输入 {len(bvids)} 条, 成功 {len(videos)} 条, 失败 {len(errors)} 条\n\n")
-        f.write(f"## 视频列表\n\n")
-        f.write(f"| # | 标题 | UP 主 | 播放 | 评论 | BV |\n|---|---|---|---|---|---|\n")
+        f.write("## 视频列表\n\n")
+        f.write("| # | 标题 | UP 主 | 播放 | 评论 | BV |\n|---|---|---|---|---|---|\n")
         for i, v in enumerate(videos, 1):
             st = v.get('stat', {})
             f.write(f"| {i} | {v.get('title', '')[:40]} | {v.get('owner', {}).get('name', '')} "
                     f"| {st.get('view', '')} | {st.get('reply', '')} | `{v.get('bvid', '')}` |\n")
         if errors:
-            f.write(f"\n## 失败列表\n\n")
+            f.write("\n## 失败列表\n\n")
             for e in errors:
                 f.write(f"- `{e['bvid']}`: {e['error']}\n")
-        f.write(f"\n## 热门评论样本\n\n")
+        f.write("\n## 热门评论样本\n\n")
         for i, v in enumerate(videos, 1):
             f.write(f"### {i}. {v.get('title', '')}\n\n")
             for c in v.get('comments_sample', []):
                 f.write(f"- **{c['uname']}** (👍{c['like']}): {c['content']}\n")
-            f.write(f"\n")
+            f.write("\n")
 
         # 弹幕统计
         if args.danmaku:
@@ -438,7 +438,7 @@ def cmd_ids(args):
                         dm_count += len(json.loads(fp.read_text()))
                     except Exception:
                         pass
-            f.write(f"\n## 弹幕统计\n\n")
+            f.write("\n## 弹幕统计\n\n")
             f.write(f"- 文件: `data/harvests/{out_dir.name}/danmaku/`, 共 **{dm_files}** 个 BV\n")
             f.write(f"- 总弹幕数: **{dm_count}** 条\n\n")
 

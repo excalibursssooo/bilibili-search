@@ -20,19 +20,14 @@ cookie 路径由 paths.py 统一管理 (默认 $SKILL/data/, 可用 BI_DATA_DIR 
 
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
 import time
 from pathlib import Path
-from urllib.parse import urlparse
 
 # 路径统一管理
-from paths import (
-    COOKIE_FILE, STATE_FILE, DATA_DIR, USERS_DIR, VIDEOS_DIR,
-    EXPORTS_DIR, HARVESTS_DIR, report as report_paths,
-)
+from paths import report as report_paths
 
 # B 站 API 域名
 API_BASE = "https://api.bilibili.com"
@@ -359,7 +354,7 @@ def cmd_user(args):
                     info(f"累积 {cur_total} 已达到 --videos={args.videos}")
                     return True
                 if next_disabled:
-                    info(f"下一页 disabled (末页)")
+                    info("下一页 disabled (末页)")
                     return True
 
                 # 点下一页 (验证 active 变化)
